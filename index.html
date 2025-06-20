@@ -9,144 +9,99 @@
       margin: 0;
       padding: 0;
       height: 100%;
-      font-family: Arial, sans-serif;
-    }
-
-    .container {
-      position: relative;
-      width: 100%;
-      height: 100%;
-      display: flex;
-      flex-direction: column;
+      touch-action: manipulation; /* Memperbaiki respons touch */
     }
 
     .pdf-container {
-      width: 100%;
-      flex-grow: 1;
+      width: 100vw;
+      height: 100vh;
       border: none;
+      -webkit-overflow-scrolling: touch; /* Scroll halus untuk iOS */
+      overflow: auto;
     }
 
     .music-toggle {
-      position: fixed;
-      bottom: 20px;
-      right: 20px;
+      position: fixed; /* Diubah ke fixed untuk mobile */
+      top: 16px;
+      right: 16px;
       z-index: 10;
       background-color: rgba(255, 255, 255, 0.9);
       border: 1px solid #ccc;
-      border-radius: 50%;
-      width: 50px;
-      height: 50px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 20px;
+      border-radius: 6px;
+      padding: 6px 12px;
+      font-size: 14px;
       cursor: pointer;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-      transition: all 0.3s ease;
-    }
-
-    .music-toggle:hover {
-      background-color: rgba(255, 255, 255, 1);
-      transform: scale(1.1);
     }
 
     audio {
       display: none;
     }
 
-    /* Header untuk mobile */
-    .header {
-      display: none;
-      background-color: #f8f8f8;
-      padding: 10px;
-      text-align: center;
-      border-bottom: 1px solid #e7e7e7;
-    }
-
-    /* Responsive adjustments */
+    /* Tambahan untuk mobile */
     @media (max-width: 768px) {
-      .header {
-        display: block;
-      }
-      
-      .music-toggle {
-        bottom: 15px;
-        right: 15px;
-        width: 45px;
-        height: 45px;
-      }
-    }
-
-    @media (max-width: 480px) {
-      .music-toggle {
-        bottom: 10px;
-        right: 10px;
-        width: 40px;
-        height: 40px;
-        font-size: 18px;
+      .pdf-container {
+        width: 100%;
+        height: calc(100vh - 60px); /* Beri ruang untuk tombol */
       }
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <div class="header">
-      <h1>Pasukan Garuda Kecil</h1>
-    </div>
-    
-    <iframe class="pdf-container" title="Komik Pasukan Garuda Kecil" src="Pasukan-Garuda-Kecil.pdf#toolbar=0&navpanes=0&scrollbar=0"></iframe>
 
-    <button class="music-toggle" onclick="toggleMusic()" aria-label="Toggle music">🔈</button>
+  <button class="music-toggle" onclick="toggleMusic()">🔈 Musik</button>
 
-    <audio id="bg-music" loop>
-      <source src="Indonesia.mp3" type="audio/mpeg" />
-      Browser Anda tidak mendukung elemen audio.
-    </audio>
-  </div>
+  <!-- Hapus parameter scrollbar=0 dan navpanes=0 -->
+  <iframe class="pdf-container" title="Komik Pasukan Garuda Kecil" 
+          src="Pasukan-Garuda-Kecil.pdf#toolbar=0"></iframe>
+
+  <audio id="bg-music" loop>
+    <source src="Indonesia.mp3" type="audio/mpeg" />
+  </audio>
 
   <script>
     const audio = document.getElementById('bg-music');
     const button = document.querySelector('.music-toggle');
     let isPlaying = false;
 
-    // Fungsi untuk mengaktifkan audio setelah interaksi pengguna
-    const enableAudio = () => {
-      audio.play().then(() => {
-        isPlaying = true;
-        button.textContent = '🔈';
-      }).catch(error => {
-        console.error('Gagal memutar audio:', error);
+    // Fungsi untuk handle touch di iframe
+    function setupTouchScroll() {
+      const iframe = document.querySelector('.pdf-container');
+      
+      iframe.addEventListener('touchstart', function() {
+        this.style.pointerEvents = 'auto';
       });
-      document.removeEventListener('click', enableAudio);
-      document.removeEventListener('touchstart', enableAudio);
-    };
+      
+      iframe.addEventListener('touchend', function() {
+        this.style.pointerEvents = 'none';
+      }, { passive: true });
+    }
 
-    // Menambahkan event listeners untuk interaksi pertama
-    document.addEventListener('DOMContentLoaded', () => {
+    window.addEventListener('DOMContentLoaded', () => {
+      const enableAudio = () => {
+        audio.play().catch(e => console.log("Audio error:", e));
+        document.removeEventListener('click', enableAudio);
+        document.removeEventListener('touchstart', enableAudio);
+      };
       document.addEventListener('click', enableAudio);
       document.addEventListener('touchstart', enableAudio);
+      
+      setupTouchScroll(); // Aktifkan touch scroll
     });
 
-    // Fungsi toggle musik
     function toggleMusic() {
       if (isPlaying) {
         audio.pause();
-        button.textContent = '🔇';
+        button.textContent = '🔇 Nyalakan';
       } else {
-        audio.play().catch(error => {
-          console.error('Gagal memutar audio:', error);
-        });
-        button.textContent = '🔈';
+        audio.play().catch(e => console.log("Audio error:", e));
+        button.textContent = '🔈 Matikan';
       }
       isPlaying = !isPlaying;
     }
 
-    // Deteksi perubahan orientasi layar
+    // Handle orientasi layar
     window.addEventListener('orientationchange', function() {
-      // Refresh untuk memastikan tampilan PDF optimal
-      setTimeout(() => {
-        window.location.reload();
-      }, 300);
+      setTimeout(() => window.location.reload(), 300);
     });
   </script>
 </body>
