@@ -2,27 +2,27 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Pasukan Garuda Kecil</title>
   <style>
     html, body {
       margin: 0;
       padding: 0;
       height: 100%;
-      touch-action: manipulation; /* Memperbaiki respons touch */
+      overflow: hidden; /* Tambahkan ini */
     }
 
     .pdf-container {
-      width: 100vw;
-      height: 100vh;
+      width: 100%;
+      height: 100%;
       border: none;
-      -webkit-overflow-scrolling: touch; /* Scroll halus untuk iOS */
-      overflow: auto;
+      overflow: auto; /* Diubah dari 100vh ke auto */
+      -webkit-overflow-scrolling: touch; /* Untuk scroll smooth di iOS */
     }
 
     .music-toggle {
-      position: fixed; /* Diubah ke fixed untuk mobile */
-      top: 16px;
+      position: fixed; /* Diubah dari absolute ke fixed */
+      top: 10px;
       right: 16px;
       z-index: 10;
       background-color: rgba(255, 255, 255, 0.9);
@@ -36,23 +36,15 @@
     audio {
       display: none;
     }
-
-    /* Tambahan untuk mobile */
-    @media (max-width: 768px) {
-      .pdf-container {
-        width: 100%;
-        height: calc(100vh - 60px); /* Beri ruang untuk tombol */
-      }
-    }
   </style>
 </head>
 <body>
 
   <button class="music-toggle" onclick="toggleMusic()">🔈 Musik</button>
 
-  <!-- Hapus parameter scrollbar=0 dan navpanes=0 -->
+  <!-- Ubah parameter PDF -->
   <iframe class="pdf-container" title="Komik Pasukan Garuda Kecil" 
-          src="Pasukan-Garuda-Kecil.pdf#toolbar=0"></iframe>
+          src="Pasukan-Garuda-Kecil.pdf#view=FitH&scrollbar=1"></iframe>
 
   <audio id="bg-music" loop>
     <source src="Indonesia.mp3" type="audio/mpeg" />
@@ -63,29 +55,21 @@
     const button = document.querySelector('.music-toggle');
     let isPlaying = false;
 
-    // Fungsi untuk handle touch di iframe
-    function setupTouchScroll() {
-      const iframe = document.querySelector('.pdf-container');
-      
-      iframe.addEventListener('touchstart', function() {
-        this.style.pointerEvents = 'auto';
-      });
-      
-      iframe.addEventListener('touchend', function() {
-        this.style.pointerEvents = 'none';
-      }, { passive: true });
-    }
-
-    window.addEventListener('DOMContentLoaded', () => {
+    // Auto-play policy handling
+    document.addEventListener('DOMContentLoaded', () => {
       const enableAudio = () => {
-        audio.play().catch(e => console.log("Audio error:", e));
+        audio.play().catch(e => console.log('Audio play failed:', e));
         document.removeEventListener('click', enableAudio);
         document.removeEventListener('touchstart', enableAudio);
       };
+      
       document.addEventListener('click', enableAudio);
       document.addEventListener('touchstart', enableAudio);
       
-      setupTouchScroll(); // Aktifkan touch scroll
+      // Handle mobile viewport
+      if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
+        document.querySelector('.pdf-container').style.height = 'calc(100% - 40px)';
+      }
     });
 
     function toggleMusic() {
@@ -93,16 +77,11 @@
         audio.pause();
         button.textContent = '🔇 Nyalakan';
       } else {
-        audio.play().catch(e => console.log("Audio error:", e));
+        audio.play().catch(e => console.log('Audio play failed:', e));
         button.textContent = '🔈 Matikan';
       }
       isPlaying = !isPlaying;
     }
-
-    // Handle orientasi layar
-    window.addEventListener('orientationchange', function() {
-      setTimeout(() => window.location.reload(), 300);
-    });
   </script>
 </body>
 </html>
