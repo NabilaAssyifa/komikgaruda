@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">  
+
+  <title>Pasukan Garuda Kecil</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+    }
+
+    .pdf-container {
+      width: 100vw;
+      height: 100vh;
+      border: none;
+    }
+
+    .music-toggle {
+      position: absolute;
+      top: 0px;
+      right: 16px;
+      z-index: 10;
+      background-color: rgba(255, 255, 255, 0.9);
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      padding: 6px 12px;
+      font-size: 14px;
+      cursor: pointer;
+    }
+
+    audio {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+
+  <button class="music-toggle" onclick="toggleMusic()">🔈 Musik</button>
+
+  <iframe class="pdf-container" title="Komik Pasukan Garuda Kecil" src="Pasukan-Garuda-Kecil.pdf#toolbar=0&navpanes=0&scrollbar=0"></iframe>
+
+  <audio id="bg-music" loop>
+    <source src="Indonesia.mp3" type="audio/mpeg" />
+  </audio>
+
+  <script>
+    const audio = document.getElementById('bg-music');
+    const button = document.querySelector('.music-toggle');
+    let isPlaying = false;
+
+    window.addEventListener('DOMContentLoaded', () => {
+      const enableAudio = () => {
+        audio.play();
+        document.removeEventListener('click', enableAudio);
+        document.removeEventListener('touchstart', enableAudio);
+      };
+      document.addEventListener('click', enableAudio);
+      document.addEventListener('touchstart', enableAudio);
+    });
+
+    function toggleMusic() {
+      if (isPlaying) {
+        audio.pause();
+        button.textContent = '🔇 Nyalakan';
+      } else {
+        audio.play();
+        button.textContent = '🔈 Matikan';
+      }
+      isPlaying = !isPlaying;
+    }
+  </script>
+
+</body>
+</html>
